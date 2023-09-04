@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ course.title }}</title>
+</head>
+<body>
+    <h1>{{ course.title }}</h1>
+    <p>{{ course.content }}</p>
+    <!-- Display Quill Content -->
+    <div id="savedQuillContent">
+        {{ quill_content|safe }}
+    </div>
+    <a href="{{ url_for('learning_path') }}">Back to Learning Paths</a>
+</body>
+</html>

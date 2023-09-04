@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ path_name }}</title>
+</head>
+<body>
+    <h1>{{ path_name }}</h1>
+    <a href="{{ url_for('course_detail', path_name=path_name) }}">Go to Course</a>
+    <a href="{{ url_for('learning_path') }}">Back to Learning Paths</a>
+</body>
+</html>
