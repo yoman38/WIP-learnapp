@@ -1,113 +1,121 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template
+
+# Initialize Flask app
 app = Flask(__name__)
 
-courses = {}
-learning_paths = {}
-
-#HOME 000
+# Home Page
 @app.route('/')
 def home():
-    return render_template('index.html')
+    return render_template('index.html', title='Home')
 
-#LEARNING PATH 111
-@app.route('/learning-path')
+# Learning Path Page
+@app.route('/learning_path')
 def learning_path():
-    return render_template('learning_path.html', paths=learning_paths)
+    return render_template('learning_path.html', title='Learning Path')
 
-@app.route('/learning-path/<path_name>')
-def path_detail(path_name):
-    if path_name in learning_paths:
-        return render_template('path_detail.html', path_name=path_name, details=learning_paths[path_name])
-    else:
-        return redirect(url_for('learning_path'))
-
-@app.route('/learning-path/<path_name>/course')
-def course_detail(path_name):
-    if path_name in learning_paths:
-        course = learning_paths[path_name]['course']
-        # Retrieve Quill content
-        quill_content = courses.get(course, {}).get('quillContent', '')
-        return render_template('course_detail.html', course=course, quill_content=quill_content)
-    else:
-        return redirect(url_for('learning_path'))
-
-
-#VIDEO LEARN 222
-@app.route('/video-learn')
+# Video Learn Page
+@app.route('/video_learn')
 def video_learn():
-    return "This is the Video Learn tab."
+    return render_template('video_learn.html', title='Video Learn')
 
-#PROFILE 333
+# Profile Page
 @app.route('/profile')
 def profile():
-    user_info = {
-        'username': 'JohnDoe',
-        'email': 'john.doe@example.com'
-    }
-    return render_template('profile.html', user=user_info)
+    return render_template('profile.html', title='Profile')
 
-#COURSE CREATION 444
-@app.route('/course-creation', methods=['GET', 'POST'])
+# Course Creation Page
+@app.route('/course_creation')
 def course_creation():
-    if request.method == 'POST':
-        tile_type = request.form['tileType']
-        title = request.form['title']
-        x = request.form['x']
-        y = request.form['y']
-        content = request.form.get('content', '')
-        child_canvas_name = request.form.get('childCanvasName', '')
-        tile = {
-            'type': tile_type,
-            'title': title,
-            'x': x,
-            'y': y,
-            'content': content,
-            'childCanvasName': child_canvas_name
-        }
-        learning_paths[title] = tile
+    return render_template('course_creation.html', title='Course Creation')
 
-        # NEW: Save Quill content
-        if tile_type == 'content':
-            quill_content = request.form.get('quillContent', '')
-            tile['content'] = quill_content
-
-        return redirect(url_for('course_creation'))
-    return render_template('course_creation.html', paths=learning_paths)
-
-@app.route('/add-tile/<canvas_name>', methods=['POST'])
-def add_tile(canvas_name):
-    tile_data = request.json
-    courses[canvas_name]['tiles'].append(tile_data)
-    return jsonify({'status': 'success'})
-
-@app.route('/get-tiles', methods=['GET'])
-def get_tiles():
-    return jsonify(learning_paths)
-
-@app.route('/save-content', methods=['POST'])
-def save_content():
-    data = request.json
-    title = data.get('title')
-    x = data.get('x')
-    y = data.get('y')
-    content = data.get('content')
-    
-    # Save to learning_paths
-    learning_paths[title] = {
-        'x': x,
-        'y': y,
-        'content': content,
-        'type': 'content'
-    }
-    quill_content = data.get('quillContent')
-    courses[title]['quillContent'] = quill_content
-    return jsonify({'status': 'success'})
-
-
-#MEMORY QUIZ 555
-@app.route('/memory-study')
+# Memory Study Page
+@app.route('/memory_study')
 def memory_study():
-    return "This is the Memory Study tab."
+    return render_template('memory_study.html', title='Memory Study')
 
+# Run the app
 if __name__ == '__main__':
-    app.run(debug=True, port=5001)
+    app.run(debug=True)
+
+
+# Sample database to hold video and quiz information
+video_db = [
+    {
+        'id': 1,
+        'title': 'Introduction to Python',
+        'url': 'https://www.youtube.com/embed/xBVzy6vAgFg',
+        'tags': ['Python', 'Beginner'],
+        'category': 'Programming',
+        'description': 'Learn the basics of Python programming.',
+        'quiz': {
+            'questions': [
+                {
+                    'question': 'What is Python?',
+                    'options': ['Snake', 'Programming Language', 'Song'],
+                    'answer': 'Programming Language'
+                },
+                # More questions can be added here
+            ]
+        },
+        'viewed': False  # To track if the user has viewed this video
+    },
+    # Add more videos here
+]
+
+@app.route('/video_learn')
+def video_learn():
+    return render_template('video_learn.html', videos=video_db)
+
+@app.route('/video/<int:video_id>')
+def video_details(video_id):
+    video = next((item for item in video_db if item['id'] == video_id), None)
+    if video:
+        video['viewed'] = True  # Mark the video as viewed
+        return render_template('video_details.html', video=video)
+    else:
+        return 'Video not found', 404
+
+
+from flask import request, redirect
+
+# Function to add a new video
+@app.route('/add_video', methods=['POST'])
+def add_video():
+    new_video = {
+        'id': len(video_db) + 1,
+        'title': request.form.get('title'),
+        'url': request.form.get('url'),
+        'tags': request.form.get('tags').split(','),
+        'category': request.form.get('category'),
+        'description': request.form.get('description'),
+        'quiz': {
+            'questions': []  # Empty quiz for now
+        },
+        'viewed': False  # To track if the user has viewed this video
+    }
+    video_db.append(new_video)
+    return redirect('/video_learn')
+
+
+from flask import request, redirect
+
+# Sample database to hold video and quiz information
+video_db = []
+
+# Function to add a new video
+@app.route('/add_video', methods=['POST'])
+def add_video():
+    new_video = {
+        'id': len(video_db) + 1,
+        'title': request.form.get('title'),
+        'url': request.form.get('url'),
+        'tags': request.form.get('tags').split(','),
+        'category': request.form.get('category'),
+        'description': request.form.get('description'),
+        'quiz': {
+            'questions': []  # Empty quiz for now
+        },
+        'viewed': False  # To track if the user has viewed this video
+    }
+    video_db.append(new_video)
+    return redirect('/video_learn')

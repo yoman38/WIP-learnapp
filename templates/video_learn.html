@@ -1,0 +1,45 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Video Learn</h1>
+    
+    <!-- Button to Open the Add Video Form -->
+    <button id="addVideoButton" onclick="document.getElementById('addVideoForm').style.display='block'">+</button>
+    
+    <!-- Add Video Form -->
+    <div id="addVideoForm" style="display:none;">
+        <form action="/add_video" method="post">
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title" required><br>
+            
+            <label for="url">YouTube URL:</label>
+            <input type="text" id="url" name="url" required><br>
+            
+            <label for="tags">Tags (comma-separated):</label>
+            <input type="text" id="tags" name="tags"><br>
+            
+            <label for="category">Category:</label>
+            <input type="text" id="category" name="category"><br>
+            
+            <label for="description">Description:</label>
+            <textarea id="description" name="description"></textarea><br>
+            
+            <input type="submit" value="Add Video">
+        </form>
+    </div>
+    
+    <!-- Video List -->
+    <div id="video-list">
+        {% for video in videos %}
+            <div class="video-item">
+                <h2>{{ video.title }}</h2>
+                <p>Tags: {{ video.tags|join(", ") }}</p>
+                <p>Category: {{ video.category }}</p>
+                <p>Description: {{ video.description }}</p>
+                <iframe width="560" height="315" src="{{ video.url }}" frameborder="0"></iframe>
+                <a href="{{ url_for('video_details', video_id=video.id) }}">Watch Video</a>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

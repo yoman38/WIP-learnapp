@@ -1,18 +1,119 @@
-#canvas {
-    position: relative;
-    width: 800px;
-    height: 800px;
-    border: 1px solid #ccc;
+/* Common Styles */
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
-.bubble {
+header {
+    background-color: #a6ffde;  /* Vibrant color palette */
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+nav ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+nav ul li {
+    display: inline;
+    margin-right: 20px;
+}
+
+section {
+    margin: 20px;
+    padding: 20px;
+}
+
+/* Learning Path Tab */
+
+.canvas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.tile {
     width: 100px;
     height: 100px;
-    position: absolute;
-    left: 50px;
     border-radius: 50%;
-    text-align: center;
-    line-height: 100px;
-    background-color: #f2f2f2;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.tile:hover {
+    transform: scale(1.1);
+}
+
+/* Video Learn Tab */
+
+.video-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+/* Profile Tab */
+
+.profile-picture {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+}
+
+.progress-bar {
+    width: 50%;
+    height: 20px;
+    background-color: blue;
+}
+
+/* Course Creation Tab */
+
+.course-canvas {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    background-image: url('path/to/grid.png');
+}
+
+/* Memory Study Tab */
+
+.memory-quiz {
+    transition: all 0.3s ease;
+}
+
+/* Visual Enhancements */
+
+.gradient-bg {
+    background: linear-gradient(to right, #f2f2f2, #ffffff);
+}
+
+.shadow {
+    box-shadow: 0px 0px 5px #ccc;
+}
+
+
+/* Styles for Video Learn Tab */
+#video-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.video-item {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+#search-filter {
+    margin-bottom: 20px;
 }

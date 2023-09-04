@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Learning Paths</title>
+    <style>
+        canvas {
+            border: 3px solid black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Available Learning Paths</h1>
+    <canvas id="learningCanvas" width="800" height="600"></canvas>
+
+    <script>
+        var canvas = document.getElementById("learningCanvas");
+        var ctx = canvas.getContext("2d");
+
+        {% for title, tile in paths.items() %}
+            ctx.beginPath();
+            ctx.arc({{ tile.x }}, {{ tile.y }}, 20, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.fillStyle = "blue";
+            ctx.fill();
+            ctx.fillStyle = "white";
+            ctx.fillText("{{ tile.title }}", {{ tile.x }} - 10, {{ tile.y }} + 5);
+        {% endfor %}
+
+        {% for path_name, details in paths.items() %}
+            <a href="{{ url_for('path_detail', path_name=path_name) }}">{{ path_name }}</a>
+        {% endfor %}
+    </script>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Course Creation</title>
+    <!-- Include Quill stylesheet -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <!-- Your existing JavaScript logic -->
+    <script>
+        var existingTiles = [];  // Initialize with an empty array
+
+        // Fetch and draw tiles
+        function fetchAndDrawTiles() {
+            fetch("/get-tiles")
+            .then(response => response.json())
+            .then(data => {
+                existingTiles = data;
+                updateCanvasPreview();
+            });
+        }
+
+        //add a new tile
+        function addTile(canvasName) {
+            let tileName = prompt("Enter tile name:");
+            let tileType = prompt("Enter tile type (content/quiz/parent):");
+            let tileContent = prompt("Enter tile content:");
+            let tileData = {'name': tileName, 'type': tileType, 'content': tileContent};
+            
+            fetch(`/add-tile/${canvasName}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(tileData)
+            }).then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert("Tile added successfully!");
+                }
+            });
+        }
+        
+        function fetchAndDrawTiles() {
+            fetch("/get-tiles")
+            .then(response => response.json())
+            .then(data => {
+                existingTiles = data;
+                updateCanvasPreview();
+            });
+        }
+
+        function showTileFields() {
+            var tileType = document.getElementById("tileType").value;
+            var contentFields = document.getElementById("contentFields");
+            var parentFields = document.getElementById("parentFields");
+            var quizFields = document.getElementById("quizFields");
+
+            contentFields.style.display = 'none';
+            parentFields.style.display = 'none';
+            quizFields.style.display = 'none';
+
+            if (tileType === 'content') {
+                contentFields.style.display = 'block';
+            } else if (tileType === 'parent') {
+                parentFields.style.display = 'block';
+            } else if (tileType === 'quiz') {
+                quizFields.style.display = 'block';
+            }
+        }
+        // Update canvas preview
+        function updateCanvasPreview() {
+            var x = Number(document.getElementById("x").value);
+            var y = Number(document.getElementById("y").value);
+            var canvas = document.getElementById("previewCanvas");
+            var ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw existing tiles
+            for (var title in existingTiles) {
+                var tile = existingTiles[title];
+                ctx.beginPath();
+                ctx.arc(tile.x, tile.y, 20, 0, 2 * Math.PI);
+                ctx.stroke();
+            }
+
+            // Draw the currently entered coordinates
+            ctx.beginPath();
+            ctx.arc(x, y, 20, 0, 2 * Math.PI);
+            ctx.stroke();
+            ctx.fillStyle = "red";  // Different color for the new tile
+            ctx.fill();
+        }
+                // Initialize Quill editor after page load
+                window.onload = function() {
+            var quill = new Quill('#editor', {
+                theme: 'snow'
+            });
+            // Add your existing onload logic, like fetchAndDrawTiles
+            fetchAndDrawTiles();
+        };
+
+        function saveContent() {
+            var content = quill.root.innerHTML; // Get content from Quill editor
+
+            // Create a payload object
+            var payload = {
+                'type': 'content',
+                'title': document.querySelector('input[name="title"]').value,
+                'x': document.querySelector('input[name="x"]').value,
+                'y': document.querySelector('input[name="y"]').value,
+                'content': content
+            };
+
+            // Use fetch API to send the payload to server
+            fetch("/save-content", {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert("Content saved successfully!");
+                }
+            });
+        }
+    </script>
+    <style>
+        canvas {
+            border: 3px solid black;
+        }
+    </style>
+</head>
+<body onload="fetchAndDrawTiles()">
+    <a href="{{ url_for('home') }}">Back to Main Menu</a>
+    <h1>Course Creation</h1>
+
+    <form method="post" action="{{ url_for('course_creation') }}" onsubmit="fetchAndDrawTiles()">
+        <select name="tileType" id="tileType" onchange="showTileFields()">
+            <option value="">Select Tile Type</option>
+            <option value="content">Content</option>
+            <option value="parent">Parent</option>
+            <option value="quiz">Quiz</option>
+        </select>
+
+        <div id="commonFields">
+            <input type="text" name="title" placeholder="Title">
+            <input type="number" id="x" name="x" placeholder="X Coordinate" oninput="updateCanvasPreview()">
+            <input type="number" id="y" name="y" placeholder="Y Coordinate" oninput="updateCanvasPreview()">
+            <canvas id="previewCanvas" width="300" height="300"></canvas>
+            <button type="button" onclick="updateCanvasPreview()">Refresh Preview</button>
+        </div>
+
+        <div id="contentFields" style="display:none;">
+            <!-- Replace textarea with Quill editor div -->
+            <div id="editor">
+              <!-- Quill editor will be instantiated here -->
+            </div>
+            <button onclick="saveContent()">Save Content</button>
+        </div>
+
+        <div id="parentFields" style="display:none;">
+            <input type="text" name="childCanvasName" placeholder="Child Canvas Name">
+        </div>
+        
+        <div id="savedQuillContent">
+            {{ quill_content|safe }}
+        </div>
+
+        <div id="quizFields" style="display:none;">
+            <input type="text" name="quizPlaceholder" placeholder="Quiz (Placeholder)">
+        </div>
+
+        <input type="submit" value="Create Tile">
+    </form>
+</body>
+</html>

@@ -1,11 +1,8 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Profile</title>
-</head>
-<body>
-    <h1>Profile Info</h1>
-    <p>Username: {{ user.username }}</p>
-    <p>Email: {{ user.email }}</p>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block content %}
+    <section class="gradient-bg shadow">
+        <img src="path/to/profile_picture.jpg" class="profile-picture">
+        <div class="progress-bar"></div>
+    </section>
+{% endblock %}
